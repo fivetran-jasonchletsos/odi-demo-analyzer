@@ -1,7 +1,32 @@
+// ── Types ─────────────────────────────────────────────────────────────────
+export interface CategoryScore {
+  score: number
+  rationale: string
+}
+
+export interface Video {
+  id: string
+  presenter: string
+  title: string
+  topic: string
+  duration: string
+  url: string
+  total: number
+  color: string          // chart colour — lives here, not in a parallel lookup
+  verdict: string
+  score_to_improve: string
+  audience: string
+  categories: CategoryScore[]  // must have exactly RUBRIC_CATEGORIES.length entries
+  strengths: string[]
+  gaps: string[]
+}
+
+// ── Rubric ────────────────────────────────────────────────────────────────
 export const RUBRIC_CATEGORIES = [
   {
     id: 'business_opening',
     name: 'Business Problem Opening',
+    short: 'Opening',   // abbreviated label for chart x-axis
     max: 15,
     description: 'Does the demo open with the specific customer pain this topic solves, before any product UI?',
     great: 'Opens with the exact customer pain in business language. No product UI for the first 60 seconds. A buyer says "that\'s my problem."',
@@ -11,6 +36,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'topic_completeness',
     name: 'Topic Completeness',
+    short: 'Completeness',
     max: 20,
     description: 'Does the demo cover its stated topic fully, end-to-end? Nothing important left out.',
     great: 'Covers the full scope of the topic. A viewer could replicate it. Nothing important missing.',
@@ -20,6 +46,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'technical_accuracy',
     name: 'Technical Accuracy',
+    short: 'Accuracy',
     max: 15,
     description: 'Are all technical claims, product names, and feature descriptions accurate?',
     great: 'Zero factual errors. Correct terminology and nuanced claims appropriately qualified.',
@@ -29,6 +56,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'demo_execution',
     name: 'Demo Execution Quality',
+    short: 'Execution',
     max: 15,
     description: 'Does the demo run smoothly? Dead ends, errors, and backtracking signal unpreparedness.',
     great: 'Smooth end-to-end. Errors handled gracefully. No dead ends. The demo proves what it set out to prove.',
@@ -38,6 +66,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'audience_targeting',
     name: 'Audience Targeting',
+    short: 'Audience',
     max: 10,
     description: 'Is the language and depth calibrated to the right buyer for this topic?',
     great: 'Vocabulary and depth perfectly matched to the audience. Would not confuse a CDO or bore a DBA.',
@@ -47,6 +76,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'objection_handling',
     name: 'Objection Handling',
+    short: 'Objections',
     max: 10,
     description: 'Does the demo proactively address the objections a buyer would have about this specific topic?',
     great: 'Top 2–3 objections for this topic addressed before the buyer raises them. Factual, not defensive.',
@@ -56,6 +86,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'narrative_arc',
     name: 'Narrative Arc',
+    short: 'Narrative',
     max: 10,
     description: 'Is there a clear beginning (problem) / middle (solution in action) / end (proof)?',
     great: 'Clean three-act structure. Each transition is deliberate. Buyer always knows where they are.',
@@ -65,6 +96,7 @@ export const RUBRIC_CATEGORIES = [
   {
     id: 'closing_cta',
     name: 'Closing & Call to Action',
+    short: 'CTA',
     max: 5,
     description: 'Does the demo end with a clear summary and a concrete next step?',
     great: 'Crisp recap of what was proved. Explicit next step (doc link, POC offer, follow-up).',
@@ -73,7 +105,7 @@ export const RUBRIC_CATEGORIES = [
   },
 ]
 
-export const VIDEOS = [
+export const VIDEOS: Video[] = [
   {
     id: 'justin',
     presenter: 'Justin Beausoleil',
@@ -82,6 +114,8 @@ export const VIDEOS = [
     duration: '18:39',
     url: 'https://www.loom.com/share/76602e280b82402b947f791c5c368d28',
     total: 89,
+    color: '#1d6fb8',
+    audience: 'DBAs and security engineers evaluating Oracle CDC connectivity in a private-network deployment',
     verdict: 'A technically precise, objection-aware walkthrough that is among the strongest demo content for this topic — held back only by the absent agent install steps and a closing that lands the proof but provides no forward motion for the viewer.',
     score_to_improve: 'Show the agent installation end-to-end (download, install command, certificate provisioning) — this is the step a DBA would block on, and demonstrating it live closes the biggest gap in topic completeness.',
     categories: [
@@ -113,6 +147,8 @@ export const VIDEOS = [
     duration: '15:11',
     url: 'https://www.loom.com/share/f848fb812bfa49999fd26b10a182d922',
     total: 70,
+    color: '#FF3621',
+    audience: 'DBA or data engineer evaluating Oracle CDC replication to Databricks',
     verdict: 'The demo delivers a credible end-to-end CDC proof-point and a useful sync-method comparison, but a Postgres detour, missing supplemental logging coverage, and no explicit next step hold it back from being a complete, DBA-ready artifact.',
     score_to_improve: 'Add a 60-second supplemental logging setup segment before triggering the first sync — this is the single prerequisite a DBA will block on, and covering it would lift Topic Completeness, Technical Accuracy, and Objection Handling simultaneously.',
     categories: [
@@ -145,6 +181,8 @@ export const VIDEOS = [
     duration: '24:33',
     url: 'https://www.loom.com/share/2d9582acc1754bb0a7b21522075fa778',
     total: 55,
+    color: '#6b7280',
+    audience: 'Security-conscious infrastructure architect at a regulated enterprise',
     verdict: 'The conceptual explanation of Hybrid Deployment is solid, but a failed Docker image pull means data movement is never proven — which is the single thing this demo exists to do.',
     score_to_improve: 'Re-record the demo section with a pre-validated environment where the full sync completes successfully — a working end-to-end proof would lift Demo Execution Quality from 4 to at least 12, adding roughly 8 points and pushing the total past 63.',
     categories: [

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { HashRouter, Routes, Route, NavLink, Link, useParams } from 'react-router-dom'
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
@@ -73,27 +74,26 @@ function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-// Abbreviated category labels for chart x-axis
-const CAT_SHORT = ['Opening', 'Completeness', 'Accuracy', 'Execution', 'Audience', 'Objections', 'Narrative', 'CTA']
-
-// Presenter colours for the grouped bar chart
-const PRESENTER_COLORS: Record<string, string> = {
-  justin: '#1d6fb8',   // steel blue
-  niraj:  '#FF3621',   // fivetran red
-  chris:  '#6b7280',   // slate
-}
+// Precomputed from VIDEOS so the tooltip formatter never does a linear scan per hover event
+const PRESENTER_FIRST: Record<string, string> = Object.fromEntries(
+  VIDEOS.map(v => [v.id, v.presenter.split(' ')[0]])
+)
+// Sorted once at module level — never recomputed on re-render
+const VIDEOS_BY_SCORE = [...VIDEOS].sort((a, b) => b.total - a.total)
 
 function CategoryComparisonChart() {
-  // Build one object per category: { cat, justin_pct, niraj_pct, chris_pct }
-  const data = RUBRIC_CATEGORIES.map((c, i) => {
-    const row: Record<string, number | string> = { cat: CAT_SHORT[i] }
-    VIDEOS.forEach(v => {
-      row[v.id] = Math.round((v.categories[i].score / c.max) * 100)
-    })
-    return row
-  })
-
-  const sorted = [...VIDEOS].sort((a, b) => b.total - a.total)
+  // Memoized: depends only on module-level constants that never change at runtime
+  const data = useMemo(() =>
+    RUBRIC_CATEGORIES.map((c, i) => {
+      const row: Record<string, number | string> = { cat: c.short }
+      VIDEOS.forEach(v => {
+        // Safe access: TypeScript enforces categories.length via the Video interface
+        row[v.id] = Math.round(((v.categories[i]?.score ?? 0) / c.max) * 100)
+      })
+      return row
+    }),
+    [] // empty deps — RUBRIC_CATEGORIES and VIDEOS are module-level constants
+  )
 
   return (
     <div className="card" style={{ padding: '20px 22px', marginBottom: 14 }}>
@@ -101,12 +101,12 @@ function CategoryComparisonChart() {
       <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 16, lineHeight: 1.5 }}>
         Score per category as % of that category's maximum. Bars below 60% identify consistent coaching opportunities.
       </p>
-      {/* Legend */}
+      {/* Legend — color comes from the video object, not a parallel lookup */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
-        {sorted.map(v => (
+        {VIDEOS_BY_SCORE.map(v => (
           <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: PRESENTER_COLORS[v.id], flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: 'var(--ink-2)', fontWeight: 500 }}>{v.presenter.split(' ')[0]}</span>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: v.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: 'var(--ink-2)', fontWeight: 500 }}>{PRESENTER_FIRST[v.id]}</span>
             <span className="font-mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{v.total}</span>
           </div>
         ))}
@@ -114,23 +114,21 @@ function CategoryComparisonChart() {
       <ResponsiveContainer width="100%" height={260}>
         <BarChart data={data} margin={{ top: 4, right: 4, bottom: 4, left: -16 }} barCategoryGap="28%" barGap={2}>
           <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 4" />
-          {/* 60% threshold line */}
           <XAxis dataKey="cat" tick={{ fontSize: 10.5, fill: 'var(--ink-3)', fontFamily: 'DM Mono, monospace' }} axisLine={false} tickLine={false} />
           <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--ink-3)', fontFamily: 'DM Mono, monospace' }}
             tickFormatter={(v) => `${v}%`} axisLine={false} tickLine={false} ticks={[0, 25, 50, 60, 75, 100]} />
           <Tooltip
             cursor={{ fill: 'rgba(0,0,0,0.03)' }}
-            formatter={(val, name) => [`${val}%`, VIDEOS.find(v => v.id === name)?.presenter.split(' ')[0] ?? name]}
+            formatter={(val, name) => [`${val}%`, PRESENTER_FIRST[name as string] ?? name]}
             contentStyle={{ fontFamily: 'DM Mono, monospace', fontSize: 11, border: '1px solid var(--border)', borderRadius: 5, background: 'var(--bg-card)' }}
             labelStyle={{ fontWeight: 600, fontSize: 12, fontFamily: 'IBM Plex Sans, sans-serif' }}
           />
-          {sorted.map(v => (
+          {VIDEOS_BY_SCORE.map(v => (
             <RBar key={v.id} dataKey={v.id} name={v.id} radius={[3, 3, 0, 0]} maxBarSize={28}>
-              {data.map((entry, idx) => {
-                const pct = (entry[v.id] as number) / 100
-                const isWeak = pct < 0.60
-                return <Cell key={idx} fill={isWeak ? PRESENTER_COLORS[v.id] : PRESENTER_COLORS[v.id]} fillOpacity={isWeak ? 0.45 : 0.9} />
-              })}
+              {data.map((entry, idx) => (
+                // fill comes from v.color; only opacity changes for weak bars
+                <Cell key={idx} fill={v.color} fillOpacity={(entry[v.id] as number) < 60 ? 0.45 : 0.9} />
+              ))}
             </RBar>
           ))}
         </BarChart>
@@ -143,7 +141,7 @@ function CategoryComparisonChart() {
 }
 
 function Scoreboard() {
-  const sorted = [...VIDEOS].sort((a, b) => b.total - a.total)
+  const sorted = VIDEOS_BY_SCORE
   return (
     <div>
       <div style={{ marginBottom: 36 }}>
