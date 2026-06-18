@@ -376,6 +376,86 @@ function VideoDetail() {
         </div>
       </div>
 
+      {/* Panel Review */}
+      <div style={{ marginBottom: 14 }}>
+        <p className="eyebrow" style={{ marginBottom: 4 }}>Fivetran SE panel review</p>
+        <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 14, lineHeight: 1.5 }}>
+          Kelly Parker (SE Director, NA), Andy Ellman (Senior Manager SE East, HVR alumni), and Doug Jauregui (Sr. SE Manager, US-LATAM) reviewed this video and discussed it as a group.
+        </p>
+
+        {/* Panelist views */}
+        <div style={{ display: 'grid', gap: 10, marginBottom: 14 }}>
+          {v.panel.panelists.map(p => (
+            <div key={p.panelist} className="card" style={{ padding: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8, gap: 10, flexWrap: 'wrap' }}>
+                <div>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>{p.panelist}</span>
+                  <span style={{ fontSize: 11, color: 'var(--ink-3)', marginLeft: 8 }}>{p.role}</span>
+                </div>
+                <span style={{
+                  fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4,
+                  background: p.would_share ? 'var(--high-bg)' : 'var(--low-bg)',
+                  color: p.would_share ? 'var(--high)' : 'var(--low)',
+                  border: `1px solid ${p.would_share ? '#86efac' : '#fca5a5'}`,
+                  flexShrink: 0,
+                }}>
+                  {p.would_share ? 'Would share externally' : 'Not ready to share'}
+                </span>
+              </div>
+              <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.65, marginBottom: 10 }}>{p.says}</p>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ft)', marginBottom: 5 }}>
+                  Unique perspective
+                </p>
+                <p style={{ fontSize: 12.5, color: 'var(--ink-3)', lineHeight: 1.6, fontStyle: 'italic' }}>{p.unique_insight}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Panel consensus + discussion */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }} className="two-col">
+          <div className="card" style={{ padding: 18 }}>
+            <p className="eyebrow" style={{ marginBottom: 10, color: 'var(--high)' }}>Where they agreed</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
+              {v.panel.consensus.map((c, i) => (
+                <li key={i} style={{ display: 'flex', gap: 8, fontSize: 12.5, lineHeight: 1.5 }}>
+                  <span style={{ color: 'var(--high)', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                  <span style={{ color: 'var(--ink-2)' }}>{c}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="card" style={{ padding: 18 }}>
+            <p className="eyebrow" style={{ marginBottom: 10, color: 'var(--mid)' }}>Where they disagreed</p>
+            <p style={{ fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.65 }}>{v.panel.key_disagreement}</p>
+          </div>
+        </div>
+
+        {/* Panel verdict */}
+        <div style={{ background: 'var(--navy)', borderRadius: 8, padding: '16px 20px', marginBottom: 10 }}>
+          <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>Panel verdict</p>
+          <p style={{ fontSize: 13.5, color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}>{v.panel.verdict}</p>
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>How they landed on the score</p>
+            <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65 }}>{v.panel.score_discussion}</p>
+          </div>
+        </div>
+
+        {/* Panel coaching */}
+        <div className="card" style={{ padding: 18 }}>
+          <p className="eyebrow" style={{ color: 'var(--ft)', marginBottom: 12 }}>Panel coaching to presenter</p>
+          <ol style={{ padding: 0, margin: 0, listStyle: 'none', display: 'grid', gap: 10 }}>
+            {v.panel.coaching.map((c, i) => (
+              <li key={i} style={{ display: 'flex', gap: 10, fontSize: 13, lineHeight: 1.55 }}>
+                <span style={{ background: 'var(--ft)', color: '#fff', fontWeight: 700, fontSize: 11, borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                <span style={{ color: 'var(--ink-2)' }}>{c}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
       <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '10px 14px', fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.5 }}>
         <strong>Topic:</strong> {v.topic} &nbsp;·&nbsp;
         <Link to="/rubric" style={{ color: 'var(--ft)', textDecoration: 'none' }}>View scoring rubric →</Link>
