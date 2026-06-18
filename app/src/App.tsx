@@ -316,24 +316,63 @@ function VideoDetail() {
         </div>
       </div>
 
-      {/* Category detail */}
-      <div className="card" style={{ padding: 22, marginBottom: 14 }}>
-        <p className="eyebrow" style={{ marginBottom: 18 }}>Category detail &amp; rationale</p>
-        <div>
-          {RUBRIC_CATEGORIES.map((c, i) => (
-            <div key={c.id} style={{ borderBottom: i < RUBRIC_CATEGORIES.length - 1 ? '1px solid var(--border)' : 'none', padding: '15px 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{c.name}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, marginLeft: 12 }}>
-                  <div style={{ width: 60 }}>
-                    <Bar score={v.categories[i].score} max={c.max} delay={i * 30} />
+      {/* Category detail vs rubric */}
+      <div style={{ marginBottom: 14 }}>
+        <p className="eyebrow" style={{ marginBottom: 14 }}>Scored vs rubric — category by category</p>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {RUBRIC_CATEGORIES.map((c, i) => {
+            const cat = v.categories[i]
+            const scorePct = cat.score / c.max
+            // Determine which tier was hit
+            const tierHit: 'great' | 'good' | 'weak' =
+              scorePct >= 0.87 ? 'great' : scorePct >= 0.60 ? 'good' : 'weak'
+            const tierLabel = { great: 'Great', good: 'Good', weak: 'Weak' }[tierHit]
+            const tierColor = { great: 'var(--high)', good: 'var(--mid)', weak: 'var(--low)' }[tierHit]
+            const tierBg   = { great: 'var(--high-bg)', good: 'var(--mid-bg)', weak: 'var(--low-bg)' }[tierHit]
+            const tierBorder = { great: '#86efac', good: '#fde68a', weak: '#fca5a5' }[tierHit]
+            return (
+              <div key={c.id} className="card" style={{ overflow: 'hidden' }}>
+                {/* Header row */}
+                <div style={{ padding: '14px 18px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>{c.name}</span>
+                    <span style={{ fontSize: 11, color: 'var(--ink-3)', marginLeft: 10 }}>{c.description}</span>
                   </div>
-                  <ScoreBadge score={v.categories[i].score} max={c.max} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                    <span style={{
+                      display: 'inline-block', padding: '2px 9px', borderRadius: 4,
+                      fontSize: 11, fontWeight: 700, letterSpacing: '0.06em',
+                      background: tierBg, color: tierColor, border: `1px solid ${tierBorder}`,
+                    }}>
+                      {tierLabel.toUpperCase()}
+                    </span>
+                    <ScoreBadge score={cat.score} max={c.max} />
+                  </div>
+                </div>
+                {/* Bar */}
+                <div style={{ padding: '0 18px 10px' }}>
+                  <Bar score={cat.score} max={c.max} delay={i * 40} />
+                </div>
+                {/* Two-column: rubric criteria + this video's score */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', borderTop: '1px solid var(--border)' }}>
+                  {/* Left: what the rubric says for this tier */}
+                  <div style={{ padding: '12px 18px', borderRight: '1px solid var(--border)', background: tierBg }}>
+                    <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: tierColor, marginBottom: 6 }}>
+                      What {tierLabel} looks like
+                    </p>
+                    <p style={{ fontSize: 12.5, color: 'var(--ink)', lineHeight: 1.6 }}>{c[tierHit]}</p>
+                  </div>
+                  {/* Right: why this video got this score */}
+                  <div style={{ padding: '12px 18px' }}>
+                    <p className="font-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 6 }}>
+                      Why this score
+                    </p>
+                    <p style={{ fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.6 }}>{cat.rationale}</p>
+                  </div>
                 </div>
               </div>
-              <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.65 }}>{v.categories[i].rationale}</p>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
