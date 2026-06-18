@@ -1,0 +1,98 @@
+{
+  "name": "Fivetran ODI Demo Scoring Rubric",
+  "version": "1.0",
+  "description": "Scores a Fivetran demo video against ODI messaging standards on a 100-point scale.",
+  "total_points": 100,
+  "categories": [
+    {
+      "id": "business_opening",
+      "name": "Business Problem Opening",
+      "points": 15,
+      "description": "Does the demo open with the customer's business problem before touching any product? A great demo makes the buyer feel seen before a single feature is shown.",
+      "great": "Opens with a specific, quantified customer pain. No product mentioned in the first 60 seconds. Buyer says 'that's exactly my problem.'",
+      "good": "Opens with a general problem statement before the demo. Some product framing too early.",
+      "poor": "Opens immediately with product UI or feature walkthrough. Business context is absent or tacked on at the end."
+    },
+    {
+      "id": "odi_completeness",
+      "name": "ODI Story Completeness",
+      "points": 20,
+      "description": "Does the demo tell the full Fivetran ODI story: source → Fivetran ingest → open format (Iceberg/Delta) → dbt transform → destination/analytics? Partial coverage scores proportionally.",
+      "great": "Covers the full arc end-to-end. Fivetran, dbt, and destination are all present and connected as a unified story.",
+      "good": "Covers 2 of 3 layers. The connection between layers is explained but not fully shown.",
+      "poor": "Single-layer demo (connector only, or destination only). No mention of the broader pipeline."
+    },
+    {
+      "id": "technical_accuracy",
+      "name": "Technical Accuracy",
+      "points": 15,
+      "description": "Are all technical claims, product names, feature descriptions, and behaviors accurate? Errors here destroy credibility with technical buyers.",
+      "great": "Zero factual errors. Correct terminology throughout (BLR not LogMiner, MDLS not S3, etc.). Nuanced claims are appropriately qualified.",
+      "good": "Minor inaccuracies that do not mislead. Product names and capabilities are broadly correct.",
+      "poor": "Material errors in feature descriptions, product names, or technical claims that would confuse or mislead a technical buyer."
+    },
+    {
+      "id": "demo_execution",
+      "name": "Demo Execution Quality",
+      "points": 15,
+      "description": "Does the demo run smoothly? Dead ends, errors, confusion, and backtracking all signal unpreparedness and erode buyer confidence.",
+      "great": "Smooth end-to-end. Any errors are handled gracefully. No dead ends. The demo tells the story it set out to tell.",
+      "good": "Minor stumbles but recovers cleanly. The core demo points land.",
+      "poor": "Multiple errors, dead ends, or confusion visible on screen. Sync fails, UI breaks, or demo has to be abandoned mid-flow."
+    },
+    {
+      "id": "audience_targeting",
+      "name": "Audience Targeting",
+      "points": 10,
+      "description": "Is the language, depth, and framing calibrated to the right buyer (CDO/CIO vs data engineer vs DBA)? A great demo speaks the audience's language.",
+      "great": "Vocabulary, depth, and examples are perfectly matched to the stated or implied audience. Would not confuse a CDO or bore a DBA.",
+      "good": "Mostly calibrated but drifts too technical or too high-level at points.",
+      "poor": "Clearly wrong audience. DBA-level detail for a CDO, or business fluff for a technical engineer."
+    },
+    {
+      "id": "objection_handling",
+      "name": "Objection Handling & Differentiation",
+      "points": 10,
+      "description": "Does the demo proactively address common objections (data residency, security, maintenance burden, existing tools) and differentiate from alternatives?",
+      "great": "Top 2-3 objections addressed before the buyer raises them. Clear, factual differentiation from alternatives (not feature-bashing).",
+      "good": "One or two objections addressed. Differentiation is present but reactive.",
+      "poor": "No objection handling. Differentiation absent or vague ('we're the best at X')."
+    },
+    {
+      "id": "narrative_arc",
+      "name": "Narrative Arc & Flow",
+      "points": 10,
+      "description": "Does the demo have a clear beginning (problem), middle (solution in action), and end (outcome/proof)? Is it organized or does it wander?",
+      "great": "Clean three-act structure. Each transition is deliberate. Buyer always knows where they are in the story.",
+      "good": "Generally organized but transitions are abrupt or some sections feel disconnected.",
+      "poor": "No clear arc. Wanders between features without a through-line. Buyer loses context."
+    },
+    {
+      "id": "close_and_cta",
+      "name": "Closing & Call to Action",
+      "points": 5,
+      "description": "Does the demo close with a clear summary of what was shown and a concrete next step for the buyer?",
+      "great": "Crisp recap of what was demonstrated. Explicit next step (POC offer, follow-up, documentation link).",
+      "good": "Summary present but next step is vague.",
+      "poor": "Demo ends abruptly or just trails off. No recap, no next step."
+    }
+  ],
+  "odi_messaging_context": {
+    "core_pillars": [
+      "One copy of data in open formats (Apache Iceberg, Delta Lake) — no proprietary lock-in",
+      "Fivetran as the ingest layer: 700+ certified connectors, CDC via Binary Log Reader, schema auto-registration",
+      "dbt as the transform layer: bronze/silver/gold medallion, tested, documented gold models",
+      "Any query engine reads the same bytes: Snowflake, Databricks, Athena, Trino — pluggable",
+      "Hybrid deployment answers the data-residency objection without changing the architecture",
+      "AI-ready: the same governed gold layer feeds both BI and AI agents"
+    ],
+    "common_objections_to_address": [
+      "We already have Snowflake/Databricks — why do we need Fivetran?",
+      "Our data can't leave our network",
+      "We have homegrown pipelines that already work",
+      "We use Autoloader / Lakeflow / native connectors already",
+      "dbt is open source, why pay for Fivetran Transformations?"
+    ],
+    "what_great_looks_like": "A great ODI demo makes the buyer feel the pain of fragmented data infrastructure, then shows Fivetran as the unified foundation. It proves the full pipeline works — data lands, transforms, and surfaces in analytics or AI — and leaves the buyer with a clear mental model of how their existing environment maps to ODI."
+  }
+}

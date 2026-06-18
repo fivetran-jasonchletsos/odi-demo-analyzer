@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --fivetran: #FF3621;
+    --fivetran-dim: rgba(255,54,33,0.12);
+    --navy: #0f1629;
+    --ink: #111827;
+    --ink-muted: #6b7280;
+    --paper: #f9fafb;
+    --hairline: #e5e7eb;
+  }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: var(--paper); color: var(--ink); }
+}
+
+.rail { height: 3px; background: var(--fivetran); }
