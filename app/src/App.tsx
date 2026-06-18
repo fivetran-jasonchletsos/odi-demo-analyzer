@@ -1,5 +1,10 @@
 import { HashRouter, Routes, Route, NavLink, Link, useParams } from 'react-router-dom'
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts'
+import {
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  BarChart, Bar as RBar, XAxis, YAxis, CartesianGrid,
+  Cell,
+  ResponsiveContainer, Tooltip,
+} from 'recharts'
 import { VIDEOS, RUBRIC_CATEGORIES } from './data'
 import './index.css'
 
@@ -68,6 +73,75 @@ function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Abbreviated category labels for chart x-axis
+const CAT_SHORT = ['Opening', 'Completeness', 'Accuracy', 'Execution', 'Audience', 'Objections', 'Narrative', 'CTA']
+
+// Presenter colours for the grouped bar chart
+const PRESENTER_COLORS: Record<string, string> = {
+  justin: '#1d6fb8',   // steel blue
+  niraj:  '#FF3621',   // fivetran red
+  chris:  '#6b7280',   // slate
+}
+
+function CategoryComparisonChart() {
+  // Build one object per category: { cat, justin_pct, niraj_pct, chris_pct }
+  const data = RUBRIC_CATEGORIES.map((c, i) => {
+    const row: Record<string, number | string> = { cat: CAT_SHORT[i] }
+    VIDEOS.forEach(v => {
+      row[v.id] = Math.round((v.categories[i].score / c.max) * 100)
+    })
+    return row
+  })
+
+  const sorted = [...VIDEOS].sort((a, b) => b.total - a.total)
+
+  return (
+    <div className="card" style={{ padding: '20px 22px', marginBottom: 14 }}>
+      <p className="eyebrow" style={{ marginBottom: 4 }}>Category comparison — all three presenters</p>
+      <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 16, lineHeight: 1.5 }}>
+        Score per category as % of that category's maximum. Bars below 60% identify consistent coaching opportunities.
+      </p>
+      {/* Legend */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
+        {sorted.map(v => (
+          <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: PRESENTER_COLORS[v.id], flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: 'var(--ink-2)', fontWeight: 500 }}>{v.presenter.split(' ')[0]}</span>
+            <span className="font-mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>{v.total}</span>
+          </div>
+        ))}
+      </div>
+      <ResponsiveContainer width="100%" height={260}>
+        <BarChart data={data} margin={{ top: 4, right: 4, bottom: 4, left: -16 }} barCategoryGap="28%" barGap={2}>
+          <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 4" />
+          {/* 60% threshold line */}
+          <XAxis dataKey="cat" tick={{ fontSize: 10.5, fill: 'var(--ink-3)', fontFamily: 'DM Mono, monospace' }} axisLine={false} tickLine={false} />
+          <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: 'var(--ink-3)', fontFamily: 'DM Mono, monospace' }}
+            tickFormatter={(v) => `${v}%`} axisLine={false} tickLine={false} ticks={[0, 25, 50, 60, 75, 100]} />
+          <Tooltip
+            cursor={{ fill: 'rgba(0,0,0,0.03)' }}
+            formatter={(val, name) => [`${val}%`, VIDEOS.find(v => v.id === name)?.presenter.split(' ')[0] ?? name]}
+            contentStyle={{ fontFamily: 'DM Mono, monospace', fontSize: 11, border: '1px solid var(--border)', borderRadius: 5, background: 'var(--bg-card)' }}
+            labelStyle={{ fontWeight: 600, fontSize: 12, fontFamily: 'IBM Plex Sans, sans-serif' }}
+          />
+          {sorted.map(v => (
+            <RBar key={v.id} dataKey={v.id} name={v.id} radius={[3, 3, 0, 0]} maxBarSize={28}>
+              {data.map((entry, idx) => {
+                const pct = (entry[v.id] as number) / 100
+                const isWeak = pct < 0.60
+                return <Cell key={idx} fill={isWeak ? PRESENTER_COLORS[v.id] : PRESENTER_COLORS[v.id]} fillOpacity={isWeak ? 0.45 : 0.9} />
+              })}
+            </RBar>
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+      <p style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 6, textAlign: 'right' }}>
+        Faded bars = below 60% threshold
+      </p>
+    </div>
+  )
+}
+
 function Scoreboard() {
   const sorted = [...VIDEOS].sort((a, b) => b.total - a.total)
   return (
@@ -111,6 +185,8 @@ function Scoreboard() {
           </Link>
         ))}
       </div>
+
+      <CategoryComparisonChart />
 
       {/* Rubric summary */}
       <div style={{ background: 'var(--navy)', borderRadius: 8, padding: '20px 22px' }}>
